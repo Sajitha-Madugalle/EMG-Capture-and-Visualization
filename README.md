@@ -28,7 +28,10 @@ e:\Projects\EMG-Capture-and-Visualization\
 ├── 03 firmware/          # Microcontroller code and PC software
 │   ├── adafruitM0/       # Arduino sketch for the Adafruit M0 Feather
 │   └── Python/           # Real-time visualization application (PyQt6)
-└── 04 3D Design/         # 3D models for enclosures and mechanical parts
+│       ├── app.py        # Main GUI Application
+│       └── EMG_game.py   # Flappy Bird Game
+├── 04 3D Design/         # 3D models for enclosures and mechanical parts
+└── 05 media/             # Project images and demos
 ```
 
 ## 🌟 Key Features
@@ -37,6 +40,15 @@ e:\Projects\EMG-Capture-and-Visualization\
 - **Precision Amplification**: Uses INA333 for low-noise instrumentation amplification.
 - **Signal Conditioning**: Analog filtering and gain stages tailored for EMG signals.
 - **Custom PCB**: Professionally designed using Altium Designer.
+- **Wearable Design**:
+
+<p align="center">
+  <img src="05 media/device.jpeg" width="45%" alt="Device View" />
+  <img src="05 media/fulldevice.png" width="14%" alt="Device on Arm" />
+</p>
+<p align="center">
+  <em>Left: Final PCB Design | Right: Device attached to arm for data capture</em>
+</p>
 
 ### Firmware (Adafruit M0)
 - **High Sampling Rate**: Optimized ADC register settings for 25kHz sampling.
@@ -44,11 +56,31 @@ e:\Projects\EMG-Capture-and-Visualization\
 - **Differential Reading**: Performs on-chip differential ADC readings (A1 - A2).
 
 ### Software (Python App)
+The system includes a powerful Python-based GUI (`app.py`) for real-time analysis.
+
 - **Real-Time Oscilloscope**: Smooth visualization using `PyQtGraph` and `PyQt6`.
 - **Digital Signal Processing**:
   - **Notch Filter**: Removes 50Hz/100Hz/150Hz mains hum.
   - **Bandpass Filter**: Configurable Butterworth filter (e.g., 25Hz - 150Hz).
 - **Data Recording**: Save captured sessions to CSV for offline analysis.
+
+![Signal in GUI](05%20media/signal_in_gui.jpeg)
+*Real-time EMG data visualization in the GUI*
+
+### 🎮 Flappy Bird Game (HCI Demo)
+To demonstrate **Human-Computer Interaction (HCI)** capabilities, the project includes a game controlled by muscle activity (`EMG_game.py`).
+
+- **Control Scheme**: Muscle contractions (EMG signal crossing a threshold) trigger the bird to jump.
+- **Visual Feedback**: Real-time EMG signal envelope is displayed at the bottom of the game window.
+- **Engaging Interaction**: A fun and interactive way to visualize bio-potential signals and their control applications.
+
+![Flappy Bird Game](05%20media/flappy_bird_game.jpeg)
+*Flappy Bird game controlled by EMG signals*
+
+### 🎥 Demo
+Check out the system in action:
+
+![Demo](05%20media/demo.mp4)
 
 ## 🛠️ Getting Started
 
@@ -65,7 +97,7 @@ e:\Projects\EMG-Capture-and-Visualization\
 ### 2. Python Environment
 Install the required Python libraries:
 ```bash
-pip install numpy scipy pyqt6 pyqtgraph
+pip install numpy scipy pyqt6 pyqtgraph pygame
 ```
 
 ### 3. Running the Visualization
@@ -78,6 +110,15 @@ python app.py
 2. Click **CONNECT** to start streaming.
 3. Use the checkboxes to enable **Mains Hum** removal or **Bandpass** filtering.
 4. Click **START CAPTURE** to record data to a CSV file.
+
+### 4. Playing the Game
+To try the game demo:
+```bash
+cd "03 firmware/Python"
+python EMG_game.py
+```
+- Flex your muscle to make the bird jump!
+- Adjust gain with Up/Down arrow keys if needed.
 
 ## 📊 Simulation
 The `01 Simulations` folder contains:

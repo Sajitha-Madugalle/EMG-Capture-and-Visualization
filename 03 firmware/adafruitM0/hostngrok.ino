@@ -1,15 +1,16 @@
 #include <SPI.h>
 #include <WiFi101.h>
-#include <WiFiUdp.h>
 
 char ssid[] = "testwifi";
 char pass[] = "12345678";
 int status = WL_IDLE_STATUS;
 
 // --- CONFIGURATION ---
-IPAddress remoteIp(10, 174, 193, 249); // <--- target PC IP 10.174.193.249
-unsigned int remotePort = 8888;
-WiFiUDP Udp;
+char server[] = "change-me.ngrok.io";  // <--- ENTER YOUR NGROK DOMAIN HERE
+char path[]   = "/api/data";           // <--- ENTER YOUR API PATH HERE
+int port      = 80;
+
+WiFiClient client;
 
 // 25 kSPS = 1 sample every 40 microseconds
 const unsigned long SAMPLE_INTERVAL_US = 40; 
@@ -43,11 +44,13 @@ void setup() {
   }
   
   while (status != WL_CONNECTED) {
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(ssid);
     status = WiFi.begin(ssid, pass);
     delay(500);
   }
   
-  Udp.begin(remotePort);
+  Serial.println("Connected to WiFi");
 }
 
 void loop() {
@@ -79,8 +82,42 @@ void loop() {
   }
 
   // --- TRANSMISSION PHASE ---
-  // Send the batch
-  Udp.beginPacket(remoteIp, remotePort);
-  Udp.write(packetBuffer, SAMPLES_PER_PACKET * 2);
-  Udp.endPacket();
+  // Send the batch via HTTP POST
+  Serial.println("Starting connection to server...");
+  if (client.connect(server, port)) {
+    Serial.println("Connected to server");
+    
+    // Make a HTTP request:
+    client.print("POST ");
+    client.print(path);
+    client.println(" HTTP/1.1");
+    client.print("Host: ");
+    client.println(server);
+    client.println("Content-Type: application/octet-stream");
+    client.print("Content-Length: ");
+    client.println(SAMPLES_PER_PACKET * 2);
+    client.println("Connection: close");
+    client.println(); // End of headers
+    
+    // Write binary data
+    client.write(packetBuffer, SAMPLES_PER_PACKET * 2);
+    
+    // Wait slightly to ensure data is sent? 
+    // Usually client.stop() will flush, but waiting for response is safer for robustness
+    // For speed, strict waiting might be bad, but for debugging let's read response line
+    /*
+    unsigned long timeout = millis();
+    while (client.connected() && millis() - timeout < 1000) {
+      if (client.available()) {
+        char c = client.read();
+        // Serial.print(c); // Print response for debug
+      }
+    }
+    */
+    client.stop(); // Disconnect
+    Serial.println("Data sent & disconnected");
+
+  } else {
+    Serial.println("Connection failed");
+  }
 }
